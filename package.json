@@ -19,10 +19,9 @@
   "scripts": {
     "pretest": "npm run lint && tsc",
     "tag": "git tag v`node -p 'require(\"./package\").version'`",
-    "lint": "tslint --project tsconfig.json --fix",
     "clean": "rm -rf dist",
     "compile": "tsc",
-    "prepublishOnly": "npm run clean && npm run test:cov"
+    "prepublishOnly": "npm run clean && npm run compile"
   },
   "repository": {
     "type": "git",
@@ -33,7 +32,6 @@
   },
   "homepage": "https://github.com/yourtion/node-ecache#readme",
   "devDependencies": {
-    "tslint": "^5.9.1",
-    "typescript": "^2.8.3"
+    "typescript": "^3.0.1"
   }
 }
