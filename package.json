@@ -13,8 +13,8 @@
   "main": "dist/index.js",
   "typing": "dist/index.d.ts",
   "files": [
-    "dist/index.d.ts",
-    "dist/index.js"
+    "dist/*.d.ts",
+    "dist/*.js"
   ],
   "scripts": {
     "pretest": "npm run lint && tsc",
