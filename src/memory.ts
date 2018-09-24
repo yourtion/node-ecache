@@ -1,28 +1,39 @@
 import Store, { IFnType } from "./store";
 
+/** 初始化内存引擎参数 */
 export interface IMemOption {
   /** 过期时间（秒） */
   ttl?: number;
+  /** 保证缓存对象不可变 */
   immutable?: boolean;
 }
 
+/** 存储对象 */
 interface ICacheItem<T> {
+  /** 过期时间 */
   expire: number;
+  /** 数据 */
   data: T;
 }
 
 /** 内存缓存 */
 export default class MemoryStore<T = any> extends Store {
+  /** 缓存对象 */
   private cache: Record<string, ICacheItem<T>> = Object.create(null);
+  /** 是否不可变 */
   private immutable: boolean;
+  /** 默认缓存时间 */
   private ttl: number;
+
+  /** 方法队列 */
   private fnQueue: Record<string, Promise<T | undefined>> = Object.create(null);
+  /** 获取数据方法 */
   private fns: Record<string, IFnType<T>> = Object.create(null);
 
-  constructor(options: IMemOption = {}) {
+  constructor({ ttl = 30, immutable = true }: IMemOption = {}) {
     super();
-    this.ttl = options.ttl || 30;
-    this.immutable = options.immutable || true;
+    this.ttl = ttl;
+    this.immutable = immutable;
   }
 
   /**
@@ -30,9 +41,8 @@ export default class MemoryStore<T = any> extends Store {
    * @param key Key
    */
   get(key: string): Promise<T | undefined> {
-    const t = Date.now();
     const info = this.cache[key];
-    if (info && info.expire > t) {
+    if (info && info.expire > Date.now()) {
       return Promise.resolve(info.data as T);
     }
     delete this.cache[key];
@@ -73,8 +83,8 @@ export default class MemoryStore<T = any> extends Store {
 
   /**
    * 通过注册的 fn 获取数据并缓存
-   * @param {String} key 获取数据Key
-   * @param {Any} args 获取数据参数
+   * @param key 获取数据Key
+   * @param args 获取数据参数
    */
   getData(key: string, ...args: any[]) {
     const fn = this.fns[key];
