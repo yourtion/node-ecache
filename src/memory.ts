@@ -59,7 +59,7 @@ export default class MemoryStore<T = any> extends Store {
 
   /**
    * 删除值
-   * @param key Key
+   * @param key
    */
   delete(key: string) {
     delete this.cache[key];

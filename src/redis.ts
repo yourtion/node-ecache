@@ -14,11 +14,11 @@ export interface IRedisOption {
   ttl?: number;
 }
 
+/** Reids 缓存 */
 export default class RedisStore<T = any> extends Store {
+  /** Redis客户端 */
   private client: RedisLike;
-  /**
-   * @param {Object} options
-   */
+
   constructor({ client, ttl = 600 }: IRedisOption) {
     super();
     this.client = client;
