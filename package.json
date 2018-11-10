@@ -32,6 +32,10 @@
   },
   "homepage": "https://github.com/yourtion/node-ecache#readme",
   "devDependencies": {
+    "@types/chai": "^4.1.7",
+    "@types/mocha": "^5.2.5",
+    "chai": "^4.2.0",
+    "mocha": "^5.2.0",
     "typescript": "^3.0.1"
   }
 }
