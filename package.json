@@ -10,11 +10,11 @@
   ],
   "author": "YourtionGuo <yourtion@gmail.com>",
   "license": "MIT",
-  "main": "dist/index.js",
+  "main": "dist/lib/index.js",
   "typing": "dist/index.d.ts",
   "files": [
-    "dist/*.d.ts",
-    "dist/*.js"
+    "dist/lib/*.d.ts",
+    "dist/lib/*.js"
   ],
   "scripts": {
     "pretest": "npm run lint && tsc",
