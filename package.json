@@ -1,6 +1,6 @@
 {
   "name": "ecache",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Easy use Memory and Redis cache implementation",
   "keywords": [
     "easy-cache",
@@ -17,7 +17,7 @@
     "dist/lib/*.js"
   ],
   "scripts": {
-    "pretest": "npm run lint && tsc",
+    "test": "jest",
     "tag": "git tag v`node -p 'require(\"./package\").version'`",
     "clean": "rm -rf dist",
     "compile": "tsc",
@@ -32,10 +32,30 @@
   },
   "homepage": "https://github.com/yourtion/node-ecache#readme",
   "devDependencies": {
-    "@types/chai": "^4.1.7",
-    "@types/mocha": "^5.2.5",
-    "chai": "^4.2.0",
-    "mocha": "^5.2.0",
+    "@types/jest": "^23.3.9",
+    "jest": "^23.6.0",
+    "ts-jest": "^23.10.4",
     "typescript": "^3.0.1"
+  },
+  "jest": {
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "src/test/test-*",
+    "collectCoverageFrom": [
+      "src/*.ts"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 80,
+        "functions": 95,
+        "lines": 80,
+        "statements": 80
+      }
+    },
+    "moduleFileExtensions": [
+      "ts",
+      "js"
+    ]
   }
 }
