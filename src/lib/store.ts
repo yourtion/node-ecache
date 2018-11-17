@@ -1,7 +1,7 @@
 export type IFnType<T> = (...args: any[]) => Promise<T>;
 
 /** 存储引擎 */
-export default abstract class Store<T = any> {
+export abstract class Store<T = any> {
   /** 默认缓存时间 */
   protected ttl: number = 0;
   /** 方法队列 */
@@ -47,10 +47,8 @@ export default abstract class Store<T = any> {
           return this.set(cacheKey, res, this.ttl);
         })
         .then(res2 => {
-          if (!this.fnQueue[cacheKey]) return res2;
-          delete this.fnQueue[cacheKey];
-          if (!res2) return undefined;
-          return this.get(cacheKey);
+          if (this.fnQueue[cacheKey]) delete this.fnQueue[cacheKey];
+          return res2;
         });
     }
     return this.fnQueue[cacheKey];

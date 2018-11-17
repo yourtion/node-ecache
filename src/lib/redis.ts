@@ -1,4 +1,4 @@
-import Store from "./store";
+import { Store } from "./store";
 
 export interface RedisLike {
   get(key: string): Promise<string>;
@@ -15,7 +15,7 @@ export interface IRedisOption {
 }
 
 /** Reids 缓存 */
-export default class RedisStore<T = any> extends Store {
+export class RedisStore<T = any> extends Store {
   /** Redis客户端 */
   private client: RedisLike;
 

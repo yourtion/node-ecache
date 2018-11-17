@@ -1,7 +1,7 @@
-import MemoryStore from "../lib/memory";
+import { MemoryStore } from "../lib";
 
 const KEY = "a";
-const VALUES = [{ a: 1, b: { b: 1 } }, "Hello Yourtion", 12.02, null];
+const VALUES = [{ a: 1, b: { b: 1 } }, "Hello Yourtion", 12.11, null];
 const VAL_OBJ = VALUES[0];
 
 const sleep = (time: number) => new Promise(resolve => setTimeout(resolve, time));
