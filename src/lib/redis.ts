@@ -1,9 +1,9 @@
 import { Store } from "./store";
 
 export interface RedisLike {
-  get(key: string): Promise<string>;
+  get(key: string): Promise<string | null>;
   set(key: string, value: any, expiryMode?: string | any[], time?: number | string): Promise<string>;
-  del(...keys: string[]): Promise<string>;
+  del(...keys: string[]): Promise<number>;
 }
 
 /** 初始化 Redis 引擎参数 */
@@ -25,12 +25,12 @@ export class RedisStore<T = any> extends Store {
     this.ttl = ttl;
   }
 
-  private parseJSON(json: string) {
-    if (typeof json !== "string") return null;
+  private parseJSON(json: string | null) {
+    if (typeof json !== "string") return undefined;
     try {
       return JSON.parse(json);
     } catch (err) {
-      return null;
+      return undefined;
     }
   }
 

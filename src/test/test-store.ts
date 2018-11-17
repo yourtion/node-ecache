@@ -1,4 +1,5 @@
-import { MemoryStore } from "../lib";
+import { MemoryStore, RedisStore } from "../lib";
+import Redis from "ioredis";
 
 const KEY = "a";
 const VALUES = [{ a: 1, b: { b: 1 } }, "Hello Yourtion", 12.11, null];
@@ -7,7 +8,7 @@ const VAL_OBJ = VALUES[0];
 const sleep = (time: number) => new Promise(resolve => setTimeout(resolve, time));
 
 describe("Store setData and getData", function() {
-  const store = new MemoryStore({ ttl: 0.001 });
+  const store = new MemoryStore({ ttl: 0.1 });
   const fnKey = "Demo";
   const mockFn = jest.fn(() => new Promise(resolve => setTimeout(() => resolve(Math.random()), 10)));
 
@@ -45,20 +46,46 @@ describe("Store setData and getData", function() {
   });
 });
 
-describe("Libs - MemoryStore immutable true", () => {
-  const cache = new MemoryStore({ ttl: 0.01 });
+describe("Store Test", function() {
+  const redis = new Redis();
 
-  it("Test - simple get set delete", async function() {
-    expect(cache.get(KEY)).resolves.toBeUndefined();
-    for (const val of VALUES) {
-      await cache.set(KEY, val);
-      expect(cache.get(KEY)).resolves.toEqual(val);
-      cache.delete(KEY);
-      expect(cache.get(KEY)).resolves.toBeUndefined();
-    }
+  const memoryStore = new MemoryStore({ immutable: false, ttl: 0.01 });
+  const redisStore = new RedisStore({ client: redis, ttl: 1 });
+
+  const stores = [memoryStore, redisStore];
+
+  afterAll(function() {
+    redis.disconnect();
   });
 
-  it("Test - immutable object", async function() {
+  for (const cache of stores) {
+    const name = cache.constructor.name;
+    const time = name === "MemoryStore" ? 10 : 1000;
+
+    describe(`${name}`, function() {
+      it("simple get set delete", async function() {
+        expect(cache.get(KEY)).resolves.toBeUndefined();
+        for (const val of VALUES) {
+          cache.set(KEY, val);
+          expect(cache.get(KEY)).resolves.toEqual(val);
+          cache.delete(KEY);
+          expect(cache.get(KEY)).resolves.toBeUndefined();
+        }
+      });
+
+      it("cache expire", async function() {
+        await cache.set(KEY, VAL_OBJ);
+        await sleep(time);
+        expect(cache.get(KEY)).resolves.toBeUndefined();
+      });
+    });
+  }
+});
+
+describe("MemoryStore immutable", function() {
+  it("immutable object", async function() {
+    const cache = new MemoryStore({ ttl: 0.01 });
+
     expect(cache.get(KEY)).resolves.toBeUndefined();
     cache.set(KEY, VAL_OBJ);
     const res = await cache.get(KEY);
@@ -66,27 +93,9 @@ describe("Libs - MemoryStore immutable true", () => {
     expect(() => (res.a = 1)).toThrow();
   });
 
-  it("Test - cache expire", async function() {
-    cache.set(KEY, VAL_OBJ);
-    await sleep(10);
-    expect(cache.get(KEY)).resolves.toBeUndefined();
-  });
-});
+  it("mutable object", async function() {
+    const cache = new MemoryStore({ immutable: false, ttl: 0.01 });
 
-describe("Libs - MemoryStore immutable false", () => {
-  const cache = new MemoryStore({ immutable: false, ttl: 0.01 });
-
-  it("Test - simple get set delete", async function() {
-    expect(cache.get(KEY)).resolves.toBeUndefined();
-    for (const val of VALUES) {
-      cache.set(KEY, val);
-      expect(cache.get(KEY)).resolves.toEqual(val);
-      cache.delete(KEY);
-      expect(cache.get(KEY)).resolves.toBeUndefined();
-    }
-  });
-
-  it("Test - mutable object", async function() {
     expect(cache.get(KEY)).resolves.toBeUndefined();
     cache.set(KEY, VAL_OBJ);
     const res = await cache.get(KEY);
@@ -94,11 +103,5 @@ describe("Libs - MemoryStore immutable false", () => {
     res.a = 2;
     expect(res.a).toEqual(2);
     expect(cache.get(KEY)).resolves.toEqual(VAL_OBJ);
-  });
-
-  it("Test - cache expire", async function() {
-    await cache.set(KEY, VAL_OBJ);
-    await sleep(10);
-    expect(cache.get(KEY)).resolves.toBeUndefined();
   });
 });
