@@ -15,6 +15,7 @@ export abstract class Store<T = any> {
   abstract set(key: string, data: T, ttl: number): Promise<T>;
   /** 删除数据 */
   abstract delete(key: string): void;
+
   /**
    * 注册通过 fn 获取 key 数据方法
    * @param key 获取数据Key
@@ -32,25 +33,36 @@ export abstract class Store<T = any> {
   getData(key: string, ...args: any[]) {
     const fn = this.fns[key];
     if (!fn) throw new Error(key + " is not setData yet");
+
+    // 通过方法Key+参数，生成缓存的Key
     const cacheKey = args.length > 0 ? key + JSON.stringify(args) : key;
-    if (!this.fnQueue[cacheKey]) {
-      this.fnQueue[cacheKey] = this.get(cacheKey)
-        .then(data => {
-          if (data !== undefined) {
-            delete this.fnQueue[cacheKey];
-            return data;
-          }
-          return fn(...args);
-        })
-        .then(res => {
-          if (!this.fnQueue[cacheKey]) return res;
+
+    // 如果已经有方法在执行，直接返回队列结果
+    if (this.fnQueue[cacheKey]) return this.fnQueue[cacheKey];
+
+    // 如果执行队列为空，则生成方法并加入执行队列
+    this.fnQueue[cacheKey] = this.get(cacheKey)
+      .then(data => {
+        // 如果缓存中有数据，直接返回并删除队列
+        if (data !== undefined) {
+          delete this.fnQueue[cacheKey];
+          return data;
+        }
+        // 缓存中没数据，执行获取数据方法
+        return fn(...args);
+      })
+      .then(res => {
+        // 如果队列中有数据则表明是通过执行方法获得的，需要将设置到缓存中
+        if (this.fnQueue[cacheKey]) {
+          delete this.fnQueue[cacheKey];
           return this.set(cacheKey, res, this.ttl);
-        })
-        .then(res2 => {
-          if (this.fnQueue[cacheKey]) delete this.fnQueue[cacheKey];
-          return res2;
-        });
-    }
+        }
+        // 上面是从缓存中获得的数据，直接返回
+        return res;
+      });
+
+    // 返回执行方法
     return this.fnQueue[cacheKey];
   }
+
 }
