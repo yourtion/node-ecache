@@ -1,6 +1,6 @@
 {
   "name": "ecache",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Easy use Memory and Redis cache implementation",
   "keywords": [
     "easy-cache",
@@ -18,10 +18,12 @@
   ],
   "scripts": {
     "test": "jest",
+    "test:cov": "jest --coverage",
     "tag": "git tag v`node -p 'require(\"./package\").version'`",
     "clean": "rm -rf dist",
     "compile": "tsc",
-    "prepublishOnly": "npm run clean && npm run compile"
+    "prepublishOnly": "npm run clean && npm run compile",
+    "postpublish": "npm run tag && git push && git push --tags"
   },
   "repository": {
     "type": "git",
