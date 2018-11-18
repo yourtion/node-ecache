@@ -1,4 +1,4 @@
-import { Store } from "./store";
+import { Cache } from "./cache";
 
 export interface RedisLike {
   get(key: string): Promise<string | null>;
@@ -15,7 +15,7 @@ export interface IRedisOption {
 }
 
 /** Reids 缓存 */
-export class RedisStore<T = any> extends Store {
+export class RedisCache<T = any> extends Cache {
   /** Redis客户端 */
   private client: RedisLike;
 

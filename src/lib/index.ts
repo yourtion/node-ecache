@@ -1,3 +1,3 @@
-export * from "./store"
+export * from "./cache"
 export * from "./memory"
 export * from "./redis"

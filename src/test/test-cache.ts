@@ -1,4 +1,4 @@
-import { MemoryStore, RedisStore } from "../lib";
+import { InMemoryCache, RedisCache } from "../lib";
 import Redis from "ioredis";
 
 const KEY = "a";
@@ -7,20 +7,20 @@ const VAL_OBJ = VALUES[0];
 
 const sleep = (time: number) => new Promise(resolve => setTimeout(resolve, time));
 
-describe("Store setData and getData", function() {
-  const store = new MemoryStore({ ttl: 0.1 });
+describe("Cache setData and getData", function() {
+  const cache = new InMemoryCache({ ttl: 0.1 });
   const fnKey = "Demo";
   const mockFn = jest.fn(() => new Promise(resolve => setTimeout(() => resolve(Math.random()), 10)));
 
   it("setData", function() {
-    store.setData(fnKey, mockFn);
-    expect((store as any).fns[fnKey]).toEqual(mockFn);
+    cache.setData(fnKey, mockFn);
+    expect((cache as any).fns[fnKey]).toEqual(mockFn);
   });
 
   it("getData", async function() {
-    const data = await store.getData(fnKey);
+    const data = await cache.getData(fnKey);
     // 第二次从缓存中获取
-    const data2 = await store.getData(fnKey);
+    const data2 = await cache.getData(fnKey);
     expect(data2).toEqual(data);
     expect(mockFn.mock.calls.length).toEqual(1);
   });
@@ -29,8 +29,8 @@ describe("Store setData and getData", function() {
     // 清空 mock 情况
     mockFn.mockClear();
 
-    const fn1 = store.getData(fnKey, 1);
-    const fn2 = store.getData(fnKey, 2);
+    const fn1 = cache.getData(fnKey, 1);
+    const fn2 = cache.getData(fnKey, 2);
     const arr = [fn1, fn2, fn1, fn1, fn1, fn2, fn2, fn2, fn1];
     const rets = await Promise.all(arr);
     expect(rets[0]).not.toEqual(rets[1]);
@@ -46,21 +46,21 @@ describe("Store setData and getData", function() {
   });
 });
 
-describe("Store Test", function() {
+describe("Cache Test", function() {
   const redis = new Redis();
 
-  const memoryStore = new MemoryStore({ immutable: false, ttl: 0.01 });
-  const redisStore = new RedisStore({ client: redis, ttl: 1 });
+  const inMemoryCache = new InMemoryCache({ immutable: false, ttl: 0.01 });
+  const redisCache = new RedisCache({ client: redis, ttl: 1 });
 
-  const stores = [memoryStore, redisStore];
+  const caches = [inMemoryCache, redisCache];
 
   afterAll(function() {
     redis.disconnect();
   });
 
-  for (const cache of stores) {
+  for (const cache of caches) {
     const name = cache.constructor.name;
-    const time = name === "MemoryStore" ? 10 : 1000;
+    const time = name === "InMemoryCache" ? 10 : 1000;
 
     describe(`${name}`, function() {
       it("simple get set delete", async function() {
@@ -82,9 +82,9 @@ describe("Store Test", function() {
   }
 });
 
-describe("MemoryStore immutable", function() {
+describe("InMemoryCache immutable", function() {
   it("immutable object", async function() {
-    const cache = new MemoryStore({ ttl: 0.01 });
+    const cache = new InMemoryCache({ ttl: 0.01 });
 
     expect(cache.get(KEY)).resolves.toBeUndefined();
     cache.set(KEY, VAL_OBJ);
@@ -94,7 +94,7 @@ describe("MemoryStore immutable", function() {
   });
 
   it("mutable object", async function() {
-    const cache = new MemoryStore({ immutable: false, ttl: 0.01 });
+    const cache = new InMemoryCache({ immutable: false, ttl: 0.01 });
 
     expect(cache.get(KEY)).resolves.toBeUndefined();
     cache.set(KEY, VAL_OBJ);

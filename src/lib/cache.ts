@@ -1,7 +1,7 @@
 export type IFnType<T> = (...args: any[]) => Promise<T>;
 
 /** 存储引擎 */
-export abstract class Store<T = any> {
+export abstract class Cache<T = any> {
   /** 默认缓存时间 */
   protected ttl: number = 0;
   /** 方法队列 */

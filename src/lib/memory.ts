@@ -1,4 +1,4 @@
-import { Store } from "./store";
+import { Cache } from "./cache";
 
 /** 初始化内存引擎参数 */
 export interface IMemOption {
@@ -17,7 +17,7 @@ interface ICacheItem<T> {
 }
 
 /** 内存缓存 */
-export class MemoryStore<T = any> extends Store {
+export class InMemoryCache<T = any> extends Cache {
   /** 缓存对象 */
   private cache: Record<string, ICacheItem<T>> = Object.create(null);
   /** 是否不可变 */
