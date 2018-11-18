@@ -6,6 +6,8 @@ export interface IMemOption {
   ttl?: number;
   /** 保证缓存对象不可变 */
   immutable?: boolean;
+  /** GC概率（小数，-1表示不执行GC） */
+  gcProbability?: number;
 }
 
 /** 存储对象 */
@@ -22,11 +24,25 @@ export class InMemoryCache<T = any> extends Cache {
   private cache: Record<string, ICacheItem<T>> = Object.create(null);
   /** 是否不可变 */
   private immutable: boolean;
+  /** GC概率分母 */
+  private gcProbability: number;
 
-  constructor({ ttl = 30, immutable = true }: IMemOption = {}) {
+  constructor({ ttl = 30, immutable = true, gcProbability = -1 }: IMemOption = {}) {
     super();
     this.ttl = ttl;
     this.immutable = immutable;
+    this.gcProbability = 1 / gcProbability;
+  }
+
+  private get isGC() {
+    return this.gcProbability > 0 && this.gcProbability * Math.random() <= 1;
+  }
+
+  private gc() {
+    const t = Date.now();
+    for (var i in this.cache) {
+      if (this.cache[i].expire <= t) delete this.cache[i];
+    }
   }
 
   /**
@@ -35,6 +51,7 @@ export class InMemoryCache<T = any> extends Cache {
    */
   get(key: string): Promise<T | undefined> {
     const info = this.cache[key];
+    if (this.isGC) this.gc();
     if (info && info.expire > Date.now()) {
       return Promise.resolve(info.data as T);
     }

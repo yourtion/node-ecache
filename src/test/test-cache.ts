@@ -82,12 +82,12 @@ describe("Cache Test", function() {
   }
 });
 
-describe("InMemoryCache immutable", function() {
+describe("InMemoryCache", function() {
   it("immutable object", async function() {
     const cache = new InMemoryCache({ ttl: 0.01 });
 
     expect(cache.get(KEY)).resolves.toBeUndefined();
-    cache.set(KEY, VAL_OBJ);
+    await cache.set(KEY, VAL_OBJ);
     const res = await cache.get(KEY);
     expect(res).toEqual(VAL_OBJ);
     expect(() => (res.a = 1)).toThrow();
@@ -97,11 +97,20 @@ describe("InMemoryCache immutable", function() {
     const cache = new InMemoryCache({ immutable: false, ttl: 0.01 });
 
     expect(cache.get(KEY)).resolves.toBeUndefined();
-    cache.set(KEY, VAL_OBJ);
+    await cache.set(KEY, VAL_OBJ);
     const res = await cache.get(KEY);
     expect(res).toEqual(VAL_OBJ);
     res.a = 2;
     expect(res.a).toEqual(2);
     expect(cache.get(KEY)).resolves.toEqual(VAL_OBJ);
+  });
+
+  it("gc", async function() {
+    const cache = new InMemoryCache({ ttl: 0.01, gcProbability: 1 });
+    await Promise.all([cache.set(KEY + 1, VAL_OBJ), cache.set(KEY + 2, VAL_OBJ), cache.set(KEY + 3, VAL_OBJ)]);
+    await sleep(11);
+    // 再次 get 必然触发GC
+    await cache.get(KEY);
+    expect(Object.keys((cache as any).cache).length).toEqual(0);
   });
 });
