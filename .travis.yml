@@ -1,5 +1,16 @@
 language: node_js
 
+addons:
+  sonarcloud:
+    organization: "yourtion-github"
+script:
+  - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+      if [ "$TRAVIS_NODE_VERSION" = '10' ]; then
+        npm run test:cov && sonar-scanner;
+      fi
+    fi
+  - npm run test
+
 services:
   - redis-server
 
