@@ -23,7 +23,7 @@
     "format": "prettier --write \"src/**/*.ts\"",
     "clean": "rm -rf dist",
     "compile": "tsc",
-    "prepublishOnly": "npm run format && npm run clean && npm run test:cov && cat ./coverage/lcov.info | coveralls && npm test",
+    "prepublishOnly": "npm run format && npm run clean && npm run test:cov && cat ./coverage/lcov.info | coveralls",
     "postpublish": "npm run tag && git push && git push --tags"
   },
   "repository": {
