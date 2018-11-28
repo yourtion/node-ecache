@@ -64,5 +64,4 @@ export abstract class Cache<T = any> {
     // 返回执行方法
     return this.fnQueue[cacheKey];
   }
-
 }

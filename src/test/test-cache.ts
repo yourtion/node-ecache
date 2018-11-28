@@ -74,10 +74,10 @@ describe("Cache Test", function() {
       for (const val of VALUES) {
         it(`simple get set delete: "${typeof val}"`, async function() {
           await cache.set(KEY, val);
-          const res = await cache.get(KEY)
+          const res = await cache.get(KEY);
           expect(res).toEqual(val);
           await cache.delete(KEY);
-          const res2 = await cache.get(KEY)
+          const res2 = await cache.get(KEY);
           expect(res2).toBeUndefined();
         });
       }
