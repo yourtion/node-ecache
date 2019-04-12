@@ -1,20 +1,31 @@
 export type IFnType<T> = (...args: any[]) => Promise<T>;
 
+export const EMPTY = Symbol("empty");
+export type Key = string | typeof EMPTY;
+
 /** 存储引擎 */
 export abstract class Cache<T = any> {
   /** 默认缓存时间 */
   protected ttl: number = 0;
+  /** 缓存随机（小数） */
+  protected randomProbability: number = 0;
   /** 方法队列 */
-  private fnQueue: Record<string, Promise<T | undefined>> = Object.create(null);
+  private fnQueue: Record<Key, Promise<T | undefined>> = Object.create(null);
   /** 获取数据方法 */
-  private fns: Record<string, IFnType<T>> = Object.create(null);
+  private fns: Record<Key, IFnType<T>> = Object.create(null);
 
   /** 获取数据 */
-  abstract get(key: string): Promise<T | undefined>;
+  abstract get(key: Key): Promise<T | undefined>;
   /** 设置数据 */
-  abstract set(key: string, data: T, ttl: number): Promise<T>;
+  abstract set(key: Key, data: T, ttl: number): Promise<T>;
   /** 删除数据 */
-  abstract delete(key: string): void;
+  abstract delete(key: Key): void;
+
+  randomTTL(ttl?: number) {
+    const t = ttl || this.ttl;
+    if (!this.randomProbability) return t;
+    return t + parseInt(String((Math.random() - 0.5) * t * this.randomProbability), 10);
+  }
 
   /**
    * 注册通过 fn 获取 key 数据方法
