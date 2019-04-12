@@ -125,3 +125,27 @@ describe("InMemoryCache", function() {
     expect(Object.keys((cache as any).cache).length).toEqual(0);
   });
 });
+
+describe("LRUCache", function() {
+  it("LRU", async function() {
+    const cache = new LRUCache({ ttl: 0.01, max: 2 });
+
+    // 设置两个值
+    await cache.set("1", 1);
+    await cache.set("2", 2);
+    const ret = await cache.get("2");
+    expect(ret).toBe(2);
+
+    // 获取 1 再设置 3 --> 2 会被淘汰
+    await cache.get("1");
+    await cache.set("3", 3);
+    const ret2 = await cache.get("2");
+    expect(ret2).toBeUndefined();
+
+    // 再获取 1 --> 3 会被淘汰
+    await cache.get("1");
+    await cache.set("4", 4);
+    const ret3 = await cache.get("3");
+    expect(ret3).toBeUndefined();
+  });
+});
