@@ -1,5 +1,6 @@
 import { InMemoryCache, RedisCache, MRCache } from "../lib";
 import Redis from "ioredis";
+import { LRUCache } from "../lib/lru";
 
 const KEY = "a";
 const VALUES = [{ a: 1, b: { b: 1 } }, "Hello Yourtion", 12.11, null];
@@ -54,8 +55,9 @@ describe("Cache Test", function() {
     redis: { client: redis, ttl: 1 },
     memory: { ttl: 0.01 },
   });
+  const lruCache = new LRUCache({ ttl: 0.01 });
 
-  const caches = [inMemoryCache, redisCache, mrCache];
+  const caches = [inMemoryCache, redisCache, mrCache, lruCache];
 
   afterAll(function() {
     redis.disconnect();
@@ -63,7 +65,7 @@ describe("Cache Test", function() {
 
   for (const cache of caches) {
     const name = cache.constructor.name;
-    const time = name === "InMemoryCache" ? 10 : 1001;
+    const time = ["InMemoryCache", "LRUCache"].indexOf(name) !== -1 ? 10 : 1001;
 
     describe(`${name}`, function() {
       beforeAll(async function() {
