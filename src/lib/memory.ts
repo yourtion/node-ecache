@@ -13,9 +13,9 @@ export interface IMemOption {
 /** 存储对象 */
 interface ICacheItem<T> {
   /** 过期时间 */
-  expire: number;
+  expiry: number;
   /** 数据 */
-  data: T;
+  value: T;
 }
 
 /** 内存缓存 */
@@ -41,7 +41,7 @@ export class InMemoryCache<T = any> extends Cache {
   private gc() {
     const t = Date.now();
     for (var i in this.cache) {
-      if (this.cache[i].expire <= t) delete this.cache[i];
+      if (this.cache[i].expiry <= t) delete this.cache[i];
     }
   }
 
@@ -52,8 +52,8 @@ export class InMemoryCache<T = any> extends Cache {
   get(key: string): Promise<T | undefined> {
     const info = this.cache[key];
     if (this.isGC) this.gc();
-    if (info && info.expire > Date.now()) {
-      return Promise.resolve(info.data as T);
+    if (info && info.expiry > Date.now()) {
+      return Promise.resolve(info.value as T);
     }
     delete this.cache[key];
     return Promise.resolve(undefined);
@@ -66,9 +66,9 @@ export class InMemoryCache<T = any> extends Cache {
    * @param ttl TTL（秒）
    */
   set(key: string, data: T, ttl = this.ttl) {
-    const cache: ICacheItem<T> = { data, expire: Date.now() + ttl * 1000 };
+    const cache: ICacheItem<T> = { value: data, expiry: Date.now() + ttl * 1000 };
     if (this.immutable && typeof data === "object") {
-      cache.data = Object.freeze(JSON.parse(JSON.stringify(data)));
+      cache.value = Object.freeze(JSON.parse(JSON.stringify(data)));
     }
     this.cache[key] = cache;
     return Promise.resolve(data);

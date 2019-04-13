@@ -17,7 +17,7 @@ export abstract class Cache<T = any> {
   /** 获取数据 */
   abstract get(key: Key): Promise<T | undefined>;
   /** 设置数据 */
-  abstract set(key: Key, data: T, ttl: number): Promise<T>;
+  abstract set(key: Key, data: T, ttl?: number): Promise<T>;
   /** 删除数据 */
   abstract delete(key: Key): void;
 
