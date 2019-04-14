@@ -33,10 +33,10 @@ export class LRUCache<T = any> extends Cache<T> {
 
   evict() {
     if (this.length > 0) {
-      this.remove(this.last, true);
+      return this.remove(this.last, true);
     }
 
-    return this;
+    return Promise.resolve(this);
   }
 
   get(key: Key) {
@@ -44,10 +44,9 @@ export class LRUCache<T = any> extends Cache<T> {
 
     if (this.has(key) === true) {
       const item = this.cache[key];
-
       if (item.expiry === -1 || item.expiry > Date.now()) {
         result = item.value;
-        this.set(key, result, 0, true);
+        this.set(key, result, this.ttl, true);
       } else {
         this.remove(key, true);
       }
@@ -84,7 +83,7 @@ export class LRUCache<T = any> extends Cache<T> {
       }
     }
 
-    return this;
+    return Promise.resolve(this);
   }
 
   set(key: Key, value: T, ttl = this.ttl, bypass = false) {
@@ -121,7 +120,7 @@ export class LRUCache<T = any> extends Cache<T> {
 
       this.length++;
       this.cache[key] = {
-        expiry: this.ttl > 0 ? new Date().getTime() + this.ttl : -1,
+        expiry: ttl > 0 ? new Date().getTime() + ttl * 1000 : -1,
         right: EMPTY,
         left: this.first,
         value: value,
