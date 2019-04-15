@@ -1,16 +1,17 @@
 import { Cache } from "./cache";
 import { InMemoryCache, IMemOption } from "./memory";
 import { RedisCache, IRedisOption } from "./redis";
+import { LRUCache } from "./lru";
 
 export interface IMRCacheOption extends IMemOption {
-  memory: IMemOption;
+  memory: Cache | IMemOption;
   redis: IRedisOption;
 }
 
 /** InMemory + Reids 二级缓存 */
 export class MRCache<T = any> extends Cache {
   /** l1缓存 InMemory */
-  private memory: InMemoryCache;
+  private memory: Cache;
   /** l2缓存 Redis */
   private redis: RedisCache;
   /** Key获取队列 */
@@ -18,7 +19,7 @@ export class MRCache<T = any> extends Cache {
 
   constructor(opt: IMRCacheOption) {
     super();
-    this.memory = new InMemoryCache(opt.memory);
+    this.memory = opt.memory instanceof Cache ? opt.memory : new InMemoryCache(opt.memory);
     this.redis = new RedisCache(opt.redis);
   }
 
@@ -46,7 +47,7 @@ export class MRCache<T = any> extends Cache {
         // 如果队列中有数据则表明是通过执行方法获得的，需要将设置到缓存中
         if (this.queue[key]) {
           delete this.queue[key];
-          return this.memory.set(key, res, this.ttl);
+          return this.memory.set(key, res);
         }
         // 上面是从缓存中获得的数据，直接返回
         return res;

@@ -1,6 +1,5 @@
-import { InMemoryCache, RedisCache, MRCache } from "../lib";
+import { InMemoryCache, RedisCache, MRCache, LRUCache } from "../lib";
 import Redis from "ioredis";
-import { LRUCache } from "../lib/lru";
 
 const KEY = "a";
 const VALUES = [{ a: 1, b: { b: 1 } }, "Hello Yourtion", 12.11, null];
@@ -51,20 +50,35 @@ describe("Cache Test", function() {
 
   const inMemoryCache = new InMemoryCache({ immutable: false, ttl: 0.01 });
   const redisCache = new RedisCache({ client: redis, ttl: 1 });
+  const lruCache = new LRUCache({ ttl: 0.01 });
   const mrCache = new MRCache({
     redis: { client: redis, ttl: 1 },
     memory: { ttl: 0.01 },
   });
-  const lruCache = new LRUCache({ ttl: 0.01 });
+  const mrCache1 = new MRCache({
+    redis: { client: redis, ttl: 1 },
+    memory: new InMemoryCache({ ttl: 0.01 }),
+  });
+  const mrCache2 = new MRCache({
+    redis: { client: redis, ttl: 1 },
+    memory: new LRUCache({ ttl: 0.01 }),
+  });
 
-  const caches = [inMemoryCache, redisCache, mrCache, lruCache];
+  const caches = [
+    { cache: inMemoryCache },
+    { cache: redisCache },
+    { cache: lruCache },
+    { title: "MRCache + Default", cache: mrCache },
+    { title: "MRCache + InMemoryCache", cache: mrCache1 },
+    { title: "MRCache + LRUCache", cache: mrCache2 },
+  ];
 
   afterAll(function() {
     redis.disconnect();
   });
 
-  for (const cache of caches) {
-    const name = cache.constructor.name;
+  for (const { cache, title } of caches) {
+    const name = title || cache.constructor.name;
     const time = ["InMemoryCache", "LRUCache"].indexOf(name) !== -1 ? 10 : 1001;
 
     describe(`${name}`, function() {
@@ -85,7 +99,7 @@ describe("Cache Test", function() {
       }
 
       it("cache expire", async function() {
-        await cache.set(KEY, VAL_OBJ);
+        await cache.set(KEY, Object.assign({ c: 1 }, VAL_OBJ));
         await sleep(time);
         expect(await cache.get(KEY)).toBeUndefined();
       });
@@ -128,7 +142,7 @@ describe("InMemoryCache", function() {
 
 describe("LRUCache", function() {
   it("LRU", async function() {
-    const cache = new LRUCache({ ttl: 0.01, max: 2 });
+    const cache = new LRUCache({ ttl: 100, max: 2 });
 
     // 设置两个值
     await cache.set("1", 1);
