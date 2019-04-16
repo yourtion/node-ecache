@@ -1,8 +1,5 @@
 export type IFnType<T> = (...args: any[]) => Promise<T>;
 
-export const EMPTY = Symbol("empty");
-export type Key = string | typeof EMPTY;
-
 /** 存储引擎 */
 export abstract class Cache<T = any> {
   /** 默认缓存时间 */
@@ -10,16 +7,16 @@ export abstract class Cache<T = any> {
   /** 缓存随机（小数） */
   protected randomProbability: number = 0;
   /** 方法队列 */
-  private fnQueue: Record<Key, Promise<T | undefined>> = Object.create(null);
+  private fnQueue: Record<string, Promise<T | undefined>> = Object.create(null);
   /** 获取数据方法 */
-  private fns: Record<Key, IFnType<T>> = Object.create(null);
+  private fns: Record<string, IFnType<T>> = Object.create(null);
 
   /** 获取数据 */
-  abstract get(key: Key): Promise<T | undefined>;
+  abstract get(key: string): Promise<T | undefined>;
   /** 设置数据 */
-  abstract set(key: Key, data: T, ttl?: number): Promise<T>;
+  abstract set(key: string, data: T, ttl?: number): Promise<T>;
   /** 删除数据 */
-  abstract delete(key: Key): void;
+  abstract delete(key: string): void;
 
   randomTTL(ttl?: number) {
     const t = ttl || this.ttl;
