@@ -4,8 +4,8 @@ addons:
   sonarcloud:
     organization: "yourtion-github"
 script:
-  - if [[ "$TRAVIS_OS_NAME" == "osx" && "$TRAVIS_NODE_VERSION" = '8' && "$TRAVIS_BRANCH" = "master" ]]; then
-      npm run test:cov && sonar-scanner;
+  - if [[ "$TRAVIS_OS_NAME" == "linux" && "$TRAVIS_NODE_VERSION" = '12' && "$TRAVIS_BRANCH" = "master" ]]; then
+      npm run test:cov ; sonar-scanner;
     fi
   - npm run test
 
@@ -26,3 +26,5 @@ node_js:
   - 8
   - 9
   - 10
+  - 11
+  - 12
