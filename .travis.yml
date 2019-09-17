@@ -19,6 +19,7 @@ cache:
 os:
   # - windows
   - linux
+  - osx
 
 node_js:
   - 6
