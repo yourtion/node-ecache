@@ -34,7 +34,7 @@ export class InMemoryCache<T = any> extends Cache {
     this.gcProbability = 1 / gcProbability;
   }
 
-  private get isGC(): boolean {
+  private isGC(): boolean {
     return this.gcProbability > 0 && this.gcProbability * Math.random() <= 1;
   }
 
@@ -51,7 +51,7 @@ export class InMemoryCache<T = any> extends Cache {
    */
   get(key: string): Promise<T | undefined> {
     const info = this.cache[key];
-    if (this.isGC) this.gc();
+    if (this.isGC()) this.gc();
     if (info && info.expiry > Date.now()) {
       return Promise.resolve(info.value as T);
     }
