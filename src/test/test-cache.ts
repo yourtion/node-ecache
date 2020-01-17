@@ -5,31 +5,31 @@ const KEY = "a";
 const VALUES = [{ a: 1, b: { b: 1 } }, "Hello Yourtion", 12.11, null];
 const VAL_OBJ = VALUES[0];
 const sleep = (time: number) => new Promise(resolve => setTimeout(resolve, time));
+const FN_KEY = "Demo";
+const FN_MOCK = jest.fn(() => new Promise(resolve => setTimeout(() => resolve(Math.random()), 10)));
 
 describe("Cache setData and getData", function() {
   const cache = new InMemoryCache({ ttl: 0.1 });
-  const fnKey = "Demo";
-  const mockFn = jest.fn(() => new Promise(resolve => setTimeout(() => resolve(Math.random()), 10)));
 
   it("setData", function() {
-    cache.setData(fnKey, mockFn);
-    expect((cache as any).fns[fnKey]).toEqual(mockFn);
+    cache.setData(FN_KEY, FN_MOCK);
+    expect((cache as any).fns[FN_KEY]).toEqual(FN_MOCK);
   });
 
   it("getData", async function() {
-    const data = await cache.getData(fnKey);
+    const data = await cache.getData(FN_KEY);
     // 第二次从缓存中获取
-    const data2 = await cache.getData(fnKey);
+    const data2 = await cache.getData(FN_KEY);
     expect(data2).toEqual(data);
-    expect(mockFn.mock.calls.length).toEqual(1);
+    expect(FN_MOCK.mock.calls.length).toEqual(1);
   });
 
   it("getData concurrency", async function() {
     // 清空 mock 情况
-    mockFn.mockClear();
+    FN_MOCK.mockClear();
 
-    const fn1 = cache.getData(fnKey, 1);
-    const fn2 = cache.getData(fnKey, 2);
+    const fn1 = cache.getData(FN_KEY, 1);
+    const fn2 = cache.getData(FN_KEY, 2);
     const arr = [fn1, fn2, fn1, fn1, fn1, fn2, fn2, fn2, fn1];
     const rets = await Promise.all(arr);
     expect(rets[0]).not.toEqual(rets[1]);
@@ -41,7 +41,7 @@ describe("Cache setData and getData", function() {
     expect(rets[7]).toEqual(rets[1]);
     expect(rets[8]).toEqual(rets[0]);
     // 方法只能被执行两次
-    expect(mockFn.mock.calls.length).toEqual(2);
+    expect(FN_MOCK.mock.calls.length).toEqual(2);
   });
 });
 
@@ -102,6 +102,18 @@ describe("Cache Test", function() {
         await cache.set(KEY, Object.assign({ c: 1 }, VAL_OBJ));
         await sleep(time);
         expect(await cache.get(KEY)).toBeUndefined();
+      });
+
+      it("setData", function() {
+        cache.setData(FN_KEY, FN_MOCK);
+        expect((cache as any).fns[FN_KEY]).toEqual(FN_MOCK);
+      });
+
+      it("getData", async function() {
+        const data = await cache.getData(FN_KEY);
+        // 第二次从缓存中获取
+        const data2 = await cache.getData(FN_KEY);
+        expect(data2).toEqual(data);
       });
     });
   }
