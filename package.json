@@ -1,6 +1,6 @@
 {
   "name": "ecache",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "description": "Easy use Memory and Redis cache implementation",
   "keywords": [
     "easy-cache",
@@ -58,7 +58,7 @@
     ],
     "coverageThreshold": {
       "global": {
-        "branches": 80,
+        "branches": 78,
         "functions": 95,
         "lines": 80,
         "statements": 80

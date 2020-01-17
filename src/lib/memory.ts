@@ -34,7 +34,7 @@ export class InMemoryCache<T = any> extends Cache {
     this.gcProbability = 1 / gcProbability;
   }
 
-  private get isGC() {
+  private get isGC(): boolean {
     return this.gcProbability > 0 && this.gcProbability * Math.random() <= 1;
   }
 
