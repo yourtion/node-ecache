@@ -18,10 +18,10 @@ export class LRUCache<T = any> extends Cache<T> {
   private cache: Record<string, ICacheData<T>> = Object.create(null);
   private length = 0;
 
-  constructor({ max, ttl }: ILRUOption = {}) {
+  constructor({ max = 100, ttl = 60 }: ILRUOption = {}) {
     super();
-    this.max = max || 100;
-    this.ttl = ttl || 60;
+    this.max = max;
+    this.ttl = ttl;
   }
 
   private has(key: string) {
@@ -29,10 +29,9 @@ export class LRUCache<T = any> extends Cache<T> {
   }
 
   evict(now: number) {
-    const keys = Object.keys(this.cache);
     let key;
     let time = now;
-    for (const k of keys) {
+    for (let k in this.cache) {
       if (this.cache[k].lately <= time) {
         key = k;
       }

@@ -38,25 +38,35 @@ export class InMemoryCache<T = any> extends Cache {
     return this.gcProbability > 0 && this.gcProbability * Math.random() <= 1;
   }
 
-  private gc() {
-    const t = Date.now();
-    for (var i in this.cache) {
+  private gc(t = Date.now()) {
+    for (let i in this.cache) {
       if (this.cache[i].expiry <= t) delete this.cache[i];
     }
+  }
+
+  private has(key: string) {
+    return key in this.cache;
   }
 
   /**
    * 获取值
    * @param key Key
    */
-  get(key: string): Promise<T | undefined> {
-    const info = this.cache[key];
-    if (this.isGC) this.gc();
-    if (info && info.expiry > Date.now()) {
-      return Promise.resolve(info.value as T);
+  get(key: string) {
+    let result;
+    const now = Date.now();
+
+    if (this.isGC) this.gc(now);
+    if (this.has(key)) {
+      const item = this.cache[key];
+      if (item.expiry === -1 || item.expiry > now) {
+        result = item.value;
+      } else {
+        this.delete(key);
+      }
     }
-    delete this.cache[key];
-    return Promise.resolve(undefined);
+
+    return Promise.resolve(result);
   }
 
   /**
