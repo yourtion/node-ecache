@@ -1,6 +1,6 @@
 {
   "name": "ecache",
-  "version": "0.6.0",
+  "version": "0.7.2",
   "description": "Easy use Memory and Redis cache implementation",
   "keywords": [
     "easy-cache",
@@ -39,14 +39,14 @@
   },
   "devDependencies": {
     "@types/ioredis": "^4.0.4",
-    "@types/jest": "^23.3.9",
-    "@types/node": "^10.12.9",
+    "@types/jest": "^24.9.0",
+    "@types/node": "^13.1.7",
     "coveralls": "^3.0.2",
     "ioredis": "^4.2.0",
-    "jest": "^23.6.0",
+    "jest": "^24.9.0",
     "prettier": "^1.15.2",
-    "ts-jest": "^23.10.4",
-    "typescript": "^3.0.1"
+    "ts-jest": "^24.3.0",
+    "typescript": "^3.7.5"
   },
   "jest": {
     "transform": {
@@ -58,7 +58,7 @@
     ],
     "coverageThreshold": {
       "global": {
-        "branches": 80,
+        "branches": 78,
         "functions": 95,
         "lines": 80,
         "statements": 80

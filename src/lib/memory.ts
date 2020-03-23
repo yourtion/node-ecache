@@ -34,7 +34,7 @@ export class InMemoryCache<T = any> extends Cache {
     this.gcProbability = 1 / gcProbability;
   }
 
-  private get isGC() {
+  private isGC(): boolean {
     return this.gcProbability > 0 && this.gcProbability * Math.random() <= 1;
   }
 
@@ -56,7 +56,7 @@ export class InMemoryCache<T = any> extends Cache {
     let result;
     const now = Date.now();
 
-    if (this.isGC) this.gc(now);
+    if (this.isGC()) this.gc(now);
     if (this.has(key)) {
       const item = this.cache[key];
       if (item.expiry === -1 || item.expiry > now) {
