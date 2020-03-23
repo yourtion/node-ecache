@@ -58,7 +58,7 @@ export class RedisCache<T = any> extends Cache {
    */
   set(key: string, data: T, ttl = this.ttl) {
     const text = this.jsonStringify(data);
-    return this.client.set(key, text, "EX", ttl);
+    return this.client.set(key, text, "EX", ttl).then(_ => data);
   }
 
   /**
