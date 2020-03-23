@@ -163,3 +163,11 @@ describe("LRUCache", function() {
     expect(ret3).toBeUndefined();
   });
 });
+
+describe("MoreTest", function() {
+  it("constructor", async function() {
+    new LRUCache();
+    new InMemoryCache();
+  });
+});
+

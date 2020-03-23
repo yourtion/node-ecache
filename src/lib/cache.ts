@@ -63,7 +63,7 @@ export abstract class Cache<T = any> {
         // 如果队列中有数据则表明是通过执行方法获得的，需要将设置到缓存中
         if (this.fnQueue[cacheKey]) {
           delete this.fnQueue[cacheKey];
-          return this.set(cacheKey, res, this.ttl);
+          return this.set(cacheKey, res, this.randomTTL());
         }
         // 上面是从缓存中获得的数据，直接返回
         return res;
