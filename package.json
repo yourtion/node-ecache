@@ -39,7 +39,7 @@
   },
   "devDependencies": {
     "@types/ioredis": "^4.0.4",
-    "@types/jest": "^24.9.0",
+    "@types/jest": "^25.2.1",
     "@types/node": "^13.1.7",
     "coveralls": "^3.0.2",
     "ioredis": "^4.2.0",
